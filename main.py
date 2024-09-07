@@ -2,7 +2,6 @@ import pygame as pg
 from ast import literal_eval
 import sys
 import math
-import os
 from chemistry_constants import *
 from ai_model import AIModel, ChatSession
 
@@ -94,14 +93,13 @@ def show_compound_info():
 
 def get_compound_info(lst_of_elements):
     global response
-    ai_model = AIModel()  # Ensure AIModel is properly instantiated
+    ai_model = AIModel()
     chat_session = ChatSession(ai_model)
     try:
-        # Convert list to string if necessary or adjust as needed
         response = literal_eval(chat_session.send_prompt(str(lst_of_elements)))
     except (SyntaxError, ValueError) as e:
         print(f"Error parsing response: {e}")
-        response = {"error": str(e)}  # You can set this as a placeholder response
+        response = {"error": str(e)}
     return response
 
 

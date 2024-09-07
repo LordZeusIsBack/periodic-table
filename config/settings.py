@@ -7,7 +7,7 @@ class Config:
         load_dotenv()
     API_KEY = os.getenv('GEMINI_API_KEY')
     GENERATION_CONFIGURATION = {
-        "temperature": 0.5,
+        "temperature": 0.1,
         "top_p": 0.95,
         "top_k": 64,
         "max_output_tokens": 8192,
