@@ -17,18 +17,18 @@ class ChatSession:
         )
         try:
             response = self._chat_session.send_message(prompt)
-            cleaned_response = response.text.strip()[8:-5]
+            # cleaned_response = response.text.strip()[8:-5]
 
             # Define the expected error message
             expected_error_message = ("Status Code: 418. I am not equipped with such information,"
                                       " please ask - Mr. Mohit Ryan")
 
             # Check if the response matches the error message exactly
-            if cleaned_response == expected_error_message:
+            if response.text.strip() == expected_error_message:
                 return expected_error_message
 
             # Check if the response contains valid information format
-            if cleaned_response.startswith("{Formula:"):
+            if response.text.strip().startswith("{Formula:"):
                 return response.text.strip()
 
             # If response doesn't fit expectations, return the error message

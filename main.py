@@ -108,10 +108,13 @@ def get_compound_info(lst_of_elements):
     chat_session = ChatSession(ai_model)
     try:
         response = chat_session.send_prompt(str(lst_of_elements))
-        response = literal_eval(response)
-    except SyntaxError:
+        # response = literal_eval(response)
+    except (SyntaxError, TypeError):
         pg.quit()
         sys.exit(response)
+    except Exception as e:
+        print(e)
+        quit()
     else:
         return response
 
