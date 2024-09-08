@@ -17,7 +17,7 @@ class ChatSession:
         )
         try:
             response = self._chat_session.send_message(prompt)
-            cleaned_response = response.text.strip()[8:-5]
+            cleaned_response = dict(response.text.strip()[8:-5])
 
             # Define the expected error message
             expected_error_message = (
@@ -25,12 +25,16 @@ class ChatSession:
                 " please ask - Mr. Mohit Ryan"
             )
 
-
             # Check if the response matches the error message exactly
             if cleaned_response == expected_error_message:
                 return expected_error_message
 
-            return cleaned_response
+            return (
+                cleaned_response
+                if cleaned_response.items()[0][0] == "Formula"
+                else expected_error_message
+            )
+        
             # # Check if the response contains valid information format
             # if cleaned_response.startswith("{Formula:"):
             #     return response.text.strip()
