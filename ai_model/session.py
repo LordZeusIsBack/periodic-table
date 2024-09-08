@@ -25,12 +25,12 @@ class ChatSession:
                 " please ask - Mr. Mohit Ryan"
             )
 
+
+            # Check if the response matches the error message exactly
+            if cleaned_response == expected_error_message:
+                return expected_error_message
+
             return cleaned_response
-
-            # # Check if the response matches the error message exactly
-            # if cleaned_response == expected_error_message:
-            #     return expected_error_message
-
             # # Check if the response contains valid information format
             # if cleaned_response.startswith("{Formula:"):
             #     return response.text.strip()
