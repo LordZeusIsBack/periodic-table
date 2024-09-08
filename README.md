@@ -63,4 +63,3 @@ If you wish to contribute to this project, please fork the repository and create
 
 ## License
 This project is licensed under the MIT License - see the LICENSE file for more details.
-```
