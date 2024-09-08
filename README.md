@@ -1,4 +1,3 @@
-```markdown
 # Elemental Combinator - Periodic Table
 
 This project is an interactive educational tool named **Elemental Combinator**, designed to teach users about the periodic table of elements by allowing them to combine elements to form compounds. The project combines Python with graphical elements to create a dynamic and engaging experience.
@@ -27,7 +26,7 @@ To run this project, you'll need Python installed along with the required depend
 
 ```bash
 pip install -r requirements.txt
-```
+
 
 ## Usage
 1. **Clone the Repository**: Clone this repository to your local machine.
