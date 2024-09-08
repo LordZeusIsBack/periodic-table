@@ -18,18 +18,27 @@ CELL_SIZE = 53
 GRID_PADDING = 4
 TABLE_OFFSET_X = 80
 
+gen_font = pg.font.Font(None, 29)
+large_font = pg.font.Font(None, 36)
+bold_font = pg.font.Font(None, 33)
+bold_font.set_bold(True)
+
 element_font = pg.font.Font("font/Brownist.otf", 28)
+
+popup_font = pg.font.Font(None, 46)
+
 response = None
 
 
 def draw_element(element, x, y, angle=0):
-    if isinstance(element, str) and element in chemistry_constants.ELEMENTS:
-        rect = pg.Rect(x, y, CELL_SIZE, CELL_SIZE)
-        pg.draw.rect(screen, chemistry_constants.ELEMENTS[element]["color"], rect)
-        pg.draw.rect(screen, BLACK, rect, 1)
-        symbol = element_font.render(element, True, ELEMENT_FONT_COLOR)
-        symbol_rect = symbol.get_rect(center=(x + CELL_SIZE // 2, y + CELL_SIZE // 2))
-        screen.blit(symbol, symbol_rect)
+    if angle == 0:
+        if element and element in chemistry_constants.ELEMENTS:
+            rect = pg.Rect(x, y, CELL_SIZE, CELL_SIZE)
+            pg.draw.rect(screen, chemistry_constants.ELEMENTS[element]['color'], rect)
+            pg.draw.rect(screen, BLACK, rect, 1)
+            symbol = element_font.render(element, True, ELEMENT_FONT_COLOR)
+            symbol_rect = symbol.get_rect(center=(x + CELL_SIZE // 2, y + CELL_SIZE // 2))
+            screen.blit(symbol, symbol_rect)
 
 
 def draw_periodic_table():
@@ -46,7 +55,7 @@ def draw_electron_shells(element, x, y, width, height):
     for i, electrons in enumerate(configuration):
         radius = (i + 1) * (min(width, height) // (2 * len(configuration)))
         pg.draw.circle(screen, WHITE, (center_x, center_y), radius, 1)
-        angle_step = 360 // electrons
+        angle_step = 360 / electrons
         for j in range(electrons):
             angle = math.radians(j * angle_step)
             ex, ey = (
@@ -59,7 +68,7 @@ def draw_electron_shells(element, x, y, width, height):
 def create_tooltip(element):
     info = chemistry_constants.ELEMENTS[element]
     tooltip_text = f'{info["name"]}'
-    tooltip = element_font.render(tooltip_text, True, (44, 44, 47), (229, 229, 229))
+    tooltip = gen_font.render(tooltip_text, True, (44, 44, 47), (229, 229, 229))
     return tooltip
 
 
@@ -75,7 +84,7 @@ def show_element_info(element):
         f'Mass: {info["mass"]}',
         f'Electronic Configuration: {info["electron_config"]}',
     ]
-    return lines[0]
+    return lines
 
 
 def show_compound_info():
@@ -85,7 +94,7 @@ def show_compound_info():
             f'Name: {response["Formula"]["name"]}',
             f'Formula: {response["Formula"]["elements"]}',
             f'Uses: {str(response["Formula"]["uses"])[1:-1]}',
-            f"Properties: {', '.join(response['Formula']['properties'])}",
+            f"Properties: {(response['Formula']['properties'])}",
         ]
     except TypeError:
         return response
@@ -98,15 +107,17 @@ def get_compound_info(lst_of_elements):
     ai_model = AIModel()
     chat_session = ChatSession(ai_model)
     try:
-        response = literal_eval(chat_session.send_prompt(str(lst_of_elements)))
-    except (SyntaxError, ValueError) as e:
-        print(f"Error parsing response: {e}")
-        response = {"error": str(e)}
-    return response
+        response = chat_session.send_prompt(str(lst_of_elements))
+        response = literal_eval(response)
+    except SyntaxError:
+        pg.quit()
+        sys.exit(response)
+    else:
+        return response
 
 
 def show_popup(message, color):
-    popup = element_font.render(message, True, color)
+    popup = popup_font.render(message, True, color)
     popup_rect = popup.get_rect(center=(WIDTH // 2, HEIGHT - 260))
     screen.blit(popup, popup_rect)
     pg.display.flip()
@@ -119,9 +130,8 @@ def get_element_at_pos(pos):
         (x - TABLE_OFFSET_X) // (CELL_SIZE + GRID_PADDING),
         y // (CELL_SIZE + GRID_PADDING),
     )
-    if 0 <= column < len(chemistry_constants.PERIODIC_TABLE_LAYOUT) and 0 <= row < len(
-        chemistry_constants.PERIODIC_TABLE_LAYOUT[0]
-    ):
+    if (0 <= column < len(chemistry_constants.PERIODIC_TABLE_LAYOUT[0]) and
+            0 <= row < len(chemistry_constants.PERIODIC_TABLE_LAYOUT)):
         return chemistry_constants.PERIODIC_TABLE_LAYOUT[row][column]
     return None
 
@@ -130,12 +140,6 @@ def main():
     global response
 
     pg.display.set_caption("Elemental combinator - Periodic Table")
-
-    gen_font = pg.font.Font(None, 29)
-    large_font = pg.font.Font(None, 36)
-    bold_font = pg.font.Font(None, 33)
-    bold_font.set_bold(True)
-    popup_font = pg.font.Font(None, 46)
 
     clock = pg.time.Clock()
     dragging, dragged_element, merge_area, info_area = False, None, [], []
@@ -150,21 +154,26 @@ def main():
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
-                sys.exit()
+                sys.exit('Exit button clicked')
             elif event.type == pg.MOUSEBUTTONDOWN:
                 if merge_button.collidepoint(event.pos):
                     try:
                         get_compound_info(merge_area)
-                        show_popup(f"Created {response['Formula']['name']}", WHITE)
-                        info_area = show_compound_info()
-                    except TypeError:
-                        show_popup(response, RED)
+                        if isinstance(response, dict):
+                            show_popup(f"Created {response['Formula']['name']} "
+                                       f"({response['Formula']['elements']})", WHITE)
+                            info_area = show_compound_info()
+                        else:
+                            show_popup(response, RED)
                         merge_area.clear()
+                    except Exception:
+                        pg.quit()
+                        sys.exit(response)
                     merge_area.clear()
                 else:
                     element = get_element_at_pos(event.pos)
                     if element in chemistry_constants.ELEMENTS:
-                        dragging, dragged_element = True, show_element_info(element)
+                        dragging, dragged_element = True, element
                         info_area = show_element_info(element)
             elif event.type == pg.MOUSEBUTTONUP:
                 if dragging:
@@ -173,17 +182,13 @@ def main():
                         merge_area.append(dragged_element)
                     else:
                         show_popup(
-                            f"{chemistry_constants.ELEMENTS[element]['name']}",
-                            WHITE,
-                        )
+                            f"{chemistry_constants.ELEMENTS[dragged_element]['name']}", WHITE)
                 dragged_element = None
         screen.fill(BACKGROUND)
         draw_periodic_table()
         pg.draw.rect(screen, WHITE, merge_area_rect, 2)
         for i, element in enumerate(merge_area):
-            draw_element(
-                element, merge_area_rect.x + 10 + i * 40, merge_area_rect.y + 10
-            )
+            draw_element(element, merge_area_rect.x + 10 + i * 40, merge_area_rect.y + 10)
         pg.draw.rect(screen, WHITE, electron_shell_rect, 2)
         if merge_area:
             draw_electron_shells(
@@ -194,11 +199,11 @@ def main():
                 electron_shell_rect.height,
             )
         pg.draw.rect(screen, WHITE, merge_button)
-        merge_text = element_font.render("Merge", True, BLACK)
+        merge_text = gen_font.render("Merge", True, BLACK)
         screen.blit(merge_text, (merge_button.x + 70, merge_button.y + 8))
         info_rect = pg.Rect(10, HEIGHT - 150, 300, 140)
         for i, line in enumerate(info_area):
-            info_text = element_font.render(line, True, WHITE)
+            info_text = gen_font.render(line, True, WHITE)
             screen.blit(info_text, (info_rect.x, info_rect.y + i * 30))
         mouse_pos = pg.mouse.get_pos()
         hover_element = get_element_at_pos(mouse_pos)
