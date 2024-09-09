@@ -160,18 +160,13 @@ def main():
                 sys.exit('Exit button clicked')
             elif event.type == pg.MOUSEBUTTONDOWN:
                 if merge_button.collidepoint(event.pos):
-                    try:
-                        get_compound_info(merge_area)
-                        if isinstance(response, dict):
-                            show_popup(f"Created {response['Formula']['name']} "
-                                       f"({response['Formula']['elements']})", WHITE)
-                            info_area = show_compound_info()
-                        else:
-                            show_popup(response, RED)
-                        merge_area.clear()
-                    except Exception:
-                        pg.quit()
-                        sys.exit(response)
+                    get_compound_info(merge_area)
+                    if isinstance(response, dict):
+                        show_popup(f"Created {response['Formula']['name']} "
+                                   f"({response['Formula']['elements']})", WHITE)
+                        info_area = show_compound_info()
+                    else:
+                        show_popup(response, RED)
                     merge_area.clear()
                 else:
                     element = get_element_at_pos(event.pos)
