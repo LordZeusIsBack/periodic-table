@@ -109,20 +109,15 @@ def get_compound_info(lst_of_elements):
     ai_model = AIModel()
     chat_session = ChatSession(ai_model)
     try:
-        response = chat_session.send_prompt(
-            list(
-                map(
-                    lambda element: chemistry_constants.ELEMENTS[element].get(
-                        "name", ""
-                    ),
-                    lst_of_elements,
-                )
-            )
-        )
-        response = literal_eval(response)
-    except SyntaxError:
+        response = chat_session.send_prompt(lst_of_elements)  # Directly pass the list, no string conversion
+        print("Raw response received:", response)  # Debug print
+    except (SyntaxError, TypeError) as e:
+        print(f"Error parsing response: {str(e)}")
         pg.quit()
-        sys.exit(response)
+        sys.exit("Parsing Error - Exiting")
+    except Exception as e:
+        print(f"Unexpected error: {str(e)}")
+        quit()
     else:
         return response
 
@@ -169,22 +164,14 @@ def main():
                 sys.exit("Exit button clicked")
             elif event.type == pg.MOUSEBUTTONDOWN:
                 if merge_button.collidepoint(event.pos):
-                    try:
-                        get_compound_info(merge_area)
-                        if isinstance(response, dict):
-                            show_popup(
-                                f"Created {response['Formula']['name']} "
-                                f"({response['Formula']['elements']})",
-                                WHITE,
-                            )
-                            info_area = show_compound_info()
-                        else:
-                            show_popup(response, RED)
-                        merge_area.clear()
-                    except Exception as e:
-                        print(e)
-                        pg.quit()
-                        sys.exit(response)
+                    get_compound_info(merge_area)
+                    print(response)
+                    if isinstance(response, dict):
+                        show_popup(f"Created {response['Formula']['name']} "
+                                   f"({response['Formula']['elements']})", WHITE)
+                        info_area = show_compound_info()
+                    else:
+                        show_popup(response, RED)
                     merge_area.clear()
                 else:
                     element = get_element_at_pos(event.pos)
