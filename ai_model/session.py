@@ -10,7 +10,7 @@ class ChatSession:
         prompt = (
             "Hi, you are a chemistry assistant bot.\n"
             "Your job is to provide information about a chemical compound given its elements.\n"
-            f"The elements provided are: {', '.join(elements)}.\n"  # Clear and direct formatting
+            f"The elements provided are: {', '.join(elements)}.\n"
             "Please provide the following details ONLY if a known and valid compound can be formed:\n"
             "{Formula: {'elements': <chemical formula>, name: <name>, uses: <uses>, properties: <properties>}}\n"
             "IMPORTANT: If the elements do not form a valid, recognized chemical compound,"
@@ -28,7 +28,6 @@ class ChatSession:
 
             if response.text.strip() == expected_error_message:
                 return expected_error_message
-
             if response.text.strip().startswith("{Formula:"):
                 return response.text.strip()
 

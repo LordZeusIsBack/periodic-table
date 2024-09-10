@@ -34,10 +34,12 @@ def draw_element(element, x, y, angle=0):
     if angle == 0:
         if element and element in chemistry_constants.ELEMENTS:
             rect = pg.Rect(x, y, CELL_SIZE, CELL_SIZE)
-            pg.draw.rect(screen, chemistry_constants.ELEMENTS[element]['color'], rect)
+            pg.draw.rect(screen, chemistry_constants.ELEMENTS[element]["color"], rect)
             pg.draw.rect(screen, BLACK, rect, 1)
             symbol = element_font.render(element, True, ELEMENT_FONT_COLOR)
-            symbol_rect = symbol.get_rect(center=(x + CELL_SIZE // 2, y + CELL_SIZE // 2))
+            symbol_rect = symbol.get_rect(
+                center=(x + CELL_SIZE // 2, y + CELL_SIZE // 2)
+            )
             screen.blit(symbol, symbol_rect)
 
 
@@ -110,7 +112,7 @@ def get_compound_info(lst_of_elements):
         response = chat_session.send_prompt(lst_of_elements)  # Directly pass the list, no string conversion
         print("Raw response received:", response)  # Debug print
     except (SyntaxError, TypeError) as e:
-        print(f"Error parsing response: {str(e)}")  # Improved error message
+        print(f"Error parsing response: {str(e)}")
         pg.quit()
         sys.exit("Parsing Error - Exiting")
     except Exception as e:
@@ -134,8 +136,9 @@ def get_element_at_pos(pos):
         (x - TABLE_OFFSET_X) // (CELL_SIZE + GRID_PADDING),
         y // (CELL_SIZE + GRID_PADDING),
     )
-    if (0 <= column < len(chemistry_constants.PERIODIC_TABLE_LAYOUT[0]) and
-            0 <= row < len(chemistry_constants.PERIODIC_TABLE_LAYOUT)):
+    if 0 <= column < len(
+        chemistry_constants.PERIODIC_TABLE_LAYOUT[0]
+    ) and 0 <= row < len(chemistry_constants.PERIODIC_TABLE_LAYOUT):
         return chemistry_constants.PERIODIC_TABLE_LAYOUT[row][column]
     return None
 
@@ -158,7 +161,7 @@ def main():
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
-                sys.exit('Exit button clicked')
+                sys.exit("Exit button clicked")
             elif event.type == pg.MOUSEBUTTONDOWN:
                 if merge_button.collidepoint(event.pos):
                     get_compound_info(merge_area)
@@ -182,13 +185,17 @@ def main():
                         merge_area.append(dragged_element)
                     else:
                         show_popup(
-                            f"{chemistry_constants.ELEMENTS[dragged_element]['name']}", WHITE)
+                            f"{chemistry_constants.ELEMENTS[dragged_element]['name']}",
+                            WHITE,
+                        )
                 dragged_element = None
         screen.fill(BACKGROUND)
         draw_periodic_table()
         pg.draw.rect(screen, WHITE, merge_area_rect, 2)
         for i, element in enumerate(merge_area):
-            draw_element(element, merge_area_rect.x + 10 + i * 40, merge_area_rect.y + 10)
+            draw_element(
+                element, merge_area_rect.x + 10 + i * 40, merge_area_rect.y + 10
+            )
         pg.draw.rect(screen, WHITE, electron_shell_rect, 2)
         if merge_area:
             draw_electron_shells(
