@@ -107,13 +107,14 @@ def get_compound_info(lst_of_elements):
     ai_model = AIModel()
     chat_session = ChatSession(ai_model)
     try:
-        response = chat_session.send_prompt(str(lst_of_elements))
-        # response = literal_eval(response)
-    except (SyntaxError, TypeError):
+        response = chat_session.send_prompt(lst_of_elements)  # Directly pass the list, no string conversion
+        print("Raw response received:", response)  # Debug print
+    except (SyntaxError, TypeError) as e:
+        print(f"Error parsing response: {str(e)}")  # Improved error message
         pg.quit()
-        sys.exit(response)
+        sys.exit("Parsing Error - Exiting")
     except Exception as e:
-        print(e)
+        print(f"Unexpected error: {str(e)}")
         quit()
     else:
         return response
