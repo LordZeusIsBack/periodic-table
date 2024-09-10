@@ -161,6 +161,7 @@ def main():
             elif event.type == pg.MOUSEBUTTONDOWN:
                 if merge_button.collidepoint(event.pos):
                     get_compound_info(merge_area)
+                    print(response)
                     if isinstance(response, dict):
                         show_popup(f"Created {response['Formula']['name']} "
                                    f"({response['Formula']['elements']})", WHITE)
