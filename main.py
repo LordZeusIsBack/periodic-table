@@ -125,7 +125,7 @@ def show_popup(message, color):
     popup_rect = popup.get_rect(center=(WIDTH // 2, HEIGHT - 260))
     screen.blit(popup, popup_rect)
     pg.display.flip()
-    pg.time.wait(1500)
+    pg.time.wait(5000)
 
 
 def get_element_at_pos(pos):
@@ -164,11 +164,10 @@ def main():
                     get_compound_info(merge_area)
                     print(response)
                     if isinstance(response, dict):
-                        show_popup(f"Created {response['Formula']['name']} "
-                                   f"({response['Formula']['elements']})", WHITE)
+                        show_popup(f"Created {response['Formula']['name']} ", WHITE)
                         info_area = show_compound_info()
                     else:
-                        show_popup(response, RED)
+                        show_popup('Status Code 418', RED)
                     merge_area.clear()
                 else:
                     element = get_element_at_pos(event.pos)
