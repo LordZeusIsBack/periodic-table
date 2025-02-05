@@ -111,12 +111,12 @@ def get_compound_info(lst_of_elements):
     try:
         response = chat_session.send_prompt(lst_of_elements)  # Directly pass the list, no string conversion
         print("Raw response received:", response)  # Debug print
-    except (SyntaxError, TypeError) as e:
+    except TypeError as e:
         print(f"Error parsing response: {str(e)}")
         pg.quit()
         sys.exit("Parsing Error - Exiting")
-    except Exception as e:
-        print(f"Unexpected error: {str(e)}")
+    except ValueError as e:
+        print(f"Valueerror: {str(e)}")
         quit()
     else:
         return response
@@ -165,7 +165,7 @@ def main():
             elif event.type == pg.MOUSEBUTTONDOWN:
                 if merge_button.collidepoint(event.pos):
                     get_compound_info(merge_area)
-                    print(response)
+                    print(type(response))
                     if isinstance(response, dict):
                         show_popup(f"Created {response['Formula']['name']} "
                                    f"({response['Formula']['elements']})", WHITE)
